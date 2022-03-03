@@ -28,8 +28,8 @@ public class Database {
     public void insert(String autore, String titolo, int numeroPagine, String genere) {
         try {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO libri VALUES(default, ?, ?, ? ,?)");
-            statement.setString(1, autore);
-            statement.setString(2, titolo);
+            statement.setString(1, titolo);
+            statement.setString(2, autore);
             statement.setInt(3, numeroPagine);
             statement.setString(4, genere);
             statement.executeUpdate();
