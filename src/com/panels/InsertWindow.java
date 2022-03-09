@@ -12,10 +12,10 @@ import java.sql.SQLException;
 public class InsertWindow extends JFrame implements ActionListener {
 
     LabelTextField[] labelTextFields = new LabelTextField[]{
-            new LabelTextField(new JLabel("Autore: "), new JTextField()),
-            new LabelTextField(new JLabel("Titolo: "), new JTextField()),
-            new LabelTextField(new JLabel("Numero Pagine: "), new JTextField()),
-            new LabelTextField(new JLabel("Genere: "), new JTextField())
+            new LabelTextField("Autore: "),
+            new LabelTextField("Titolo: "),
+            new LabelTextField("Numero Pagine: "),
+            new LabelTextField("Genere: ")
     };
 
     JPanel[] panels = new JPanel[]{new JPanel(new GridLayout(2,2)), new JPanel(new FlowLayout())};
@@ -50,7 +50,7 @@ public class InsertWindow extends JFrame implements ActionListener {
             case "Insert" -> {
                 String autore = labelTextFields[0].Text.getText();
                 String titolo = labelTextFields[1].Text.getText();
-                String pagine = !labelTextFields[2].Text.getText().isBlank() ? labelTextFields[2].Text.getText() : "0";
+                String pagine = !labelTextFields[2].Text.getText().isBlank() ? labelTextFields[2].Text.getText() :  "0";
                 String genere = !labelTextFields[3].Text.getText().isBlank() ? labelTextFields[3].Text.getText() : "//";
 
                 if (!autore.isBlank() && !titolo.isBlank()) {
@@ -58,12 +58,13 @@ public class InsertWindow extends JFrame implements ActionListener {
                         Database database = new Database();
                         database.insert(autore, titolo, Integer.parseInt(pagine), genere);
                         database.connection.close();
+                        for(LabelTextField labelTextField : labelTextFields) labelTextField.Text.setText("");
 
                     } catch (Exception ex){
-                        JOptionPane.showMessageDialog(null, ex.getMessage());
+                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Errore!", JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Campi invalidi!");
+                    JOptionPane.showMessageDialog(null, "Campi invalidi!", "Attenzione!", JOptionPane.ERROR_MESSAGE);
                 }
             }
             case "Close" -> {

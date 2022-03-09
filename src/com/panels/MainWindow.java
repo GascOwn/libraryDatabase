@@ -1,5 +1,7 @@
 package com.panels;
 
+import com.database.Database;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,7 +9,7 @@ import javax.swing.*;
 
 public class MainWindow extends JFrame implements ActionListener {
 
-    JComboBox<String> combo = new JComboBox<>(new String[]{"Visualizza database", "Aggingi elemento"});
+    JComboBox<String> combo = new JComboBox<>(new String[]{"Visualizza database", "Aggingi elemento", "Statistiche"});
     JButton[] buttons = new JButton[] {new JButton("Procedi"), new JButton("Chiudi")};
 
     public MainWindow(){
@@ -33,15 +35,18 @@ public class MainWindow extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         dispose();
-        String cmd = e.getActionCommand();
-
-        if (cmd.equals("Open")) {
+        if (e.getActionCommand().equals("Open")) {
             try {
-                JFrame view = combo.getSelectedIndex() == 0 ? new DatabaseWindow() : new InsertWindow();
-                view.setVisible(true);
+                switch(combo.getSelectedIndex()){
+                    case 0 -> new DatabaseWindow().setVisible(true);
+                    case 1 -> new InsertWindow().setVisible(true);
+                    case 2 -> Database.getStatistics();
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
     }
 }
+
+

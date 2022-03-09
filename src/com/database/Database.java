@@ -1,5 +1,7 @@
 package com.database;
 
+import com.panels.MainWindow;
+
 import javax.swing.*;
 import java.sql.*;
 import java.util.Vector;
@@ -40,7 +42,7 @@ public class Database {
         }
     }
 
-    public Vector<Book> select(String query) throws SQLException {
+    public Vector<Book> selectBook(String query) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(query);
         ResultSet result = statement.executeQuery();
         Vector<Book> results = new Vector<>();
@@ -54,6 +56,21 @@ public class Database {
         statement.close();
         return results;
     }
+
+    public Vector<User> selectUser(String query) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet result = statement.executeQuery();
+        Vector<User> results = new Vector<>();
+        while(result.next()){
+            results.add(new User(result.getInt("id"),
+                    result.getString("nominativo"),
+                    result.getString("username"),
+                    result.getString("password")));
+        }
+        statement.close();
+        return results;
+    }
+
 
     public void update(String id, String autore, String titolo, String numeroPagine, String genere) {
         try {
@@ -83,5 +100,21 @@ public class Database {
             JOptionPane.showMessageDialog(null, ex.getMessage());
         }
 
+    }
+
+    public static void getStatistics() throws SQLException {
+        Database database = new Database();
+        int[] libri = new int[2];
+        String[] query = new String[]{"SELECT COUNT(id) FROM libri", "SELECT COUNT(id) FROM libri WHERE numero_pagine > 100" };
+        for(int i = 0; i < libri.length; i++){
+            PreparedStatement statement = database.connection.prepareStatement(query[i]);
+            ResultSet results = statement.executeQuery();
+            results.next();
+            libri[i] = results.getInt(1);
+            statement.close();
+        }
+        JOptionPane.showMessageDialog(null,
+                "Numero di libri totali: " + libri[0] + "\nNumero di libri con più di cento pagine: " + libri[1]);
+        new MainWindow().setVisible(true);
     }
 }

@@ -1,10 +1,10 @@
 package com.databaseLibreria;
 
-import com.panels.MainWindow;
+import com.panels.LoginWindow;
 
 public class Main {
 
     public static void main(String[] args){
-        new MainWindow().setVisible(true);
+        new LoginWindow().setVisible(true);
     }
 }

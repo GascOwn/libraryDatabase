@@ -15,10 +15,10 @@ public class ModifyWindow extends JFrame implements ActionListener {
     String Genere;
 
     LabelTextField[] labelTextFields = new LabelTextField[]{
-            new LabelTextField(new JLabel("Autore: "), new JTextField()),
-            new LabelTextField(new JLabel("Titolo: "), new JTextField()),
-            new LabelTextField(new JLabel("Numero Pagine: "), new JTextField()),
-            new LabelTextField(new JLabel("Genere: "), new JTextField())
+            new LabelTextField("Autore: "),
+            new LabelTextField("Titolo: "),
+            new LabelTextField("Numero Pagine: "),
+            new LabelTextField("Genere: ")
     };
 
     JPanel[] panels = new JPanel[]{new JPanel(new GridLayout(2,2)), new JPanel(new FlowLayout())};

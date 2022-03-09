@@ -2,6 +2,7 @@ package com.panels;
 
 import com.database.Book;
 import com.database.Database;
+import com.panels.components.TableMouseListener;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -14,7 +15,7 @@ import java.sql.*;
 
 public class DatabaseWindow extends JFrame implements ActionListener {
 
-    JButton[] buttons = new JButton[]{new JButton("Chiudi"), new JButton("Nuovo") ,new JButton("Modifica"), new JButton("Elimina")};
+    JButton[] buttons = new JButton[]{new JButton("Nuovo"), new JButton("Modifica") ,new JButton("Elimina"), new JButton("Chiudi")};
     JTable table;
     String[] columns = new String[]{"Id", "Autore", "Titolo", "Numero Pagine", "Genere"};
     DefaultTableModel model = new DefaultTableModel(columns, 0);
@@ -28,11 +29,7 @@ public class DatabaseWindow extends JFrame implements ActionListener {
 
         setLayout(new BorderLayout());
 
-        for(JButton button : buttons) button.addActionListener(this);
-        buttons[0].setActionCommand("Close");
-        buttons[1].setActionCommand("New");
-        buttons[2].setActionCommand("Modify");
-        buttons[3].setActionCommand("Delete");
+        String[] commands = new String[]{"New", "Modify", "Delete", "Close"};
 
         table = new JTable(model){
             public boolean isCellEditable(int row, int column){
@@ -55,6 +52,26 @@ public class DatabaseWindow extends JFrame implements ActionListener {
             tc.setCellRenderer(renderer);
         }
 
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem[] menuItems = new JMenuItem[] {
+                new JMenuItem("Aggiungi"),
+                new JMenuItem("Modifica"),
+                new JMenuItem("Elimina"),
+        };
+
+        for(int i = 0; i < commands.length; i++){
+            buttons[i].addActionListener(this);
+            buttons[i].setActionCommand(commands[i]);
+            if(i < 3){
+                menu.add(menuItems[i]);
+                menuItems[i].addActionListener(this);
+                menuItems[i].setActionCommand(commands[i]);
+            }
+        }
+
+        table.setComponentPopupMenu(menu);
+        table.addMouseListener(new TableMouseListener(table));
+
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
@@ -69,7 +86,7 @@ public class DatabaseWindow extends JFrame implements ActionListener {
 
     public void populateTable() throws SQLException {
         Database database = new Database();
-        for(Book book : database.select("SELECT * FROM libri")){
+        for(Book book : database.selectBook("SELECT * FROM libri")){
             Object[] object = new Object[]{book.getId(), book.getAutore(), book.getTitolo(), book.getNumeroPagine(), book.getGenere()};
             model.addRow(object);
         }
@@ -102,19 +119,22 @@ public class DatabaseWindow extends JFrame implements ActionListener {
                 }
             }
             case "Delete" -> {
-                try{
-                    int row = table.getSelectedRow();
-                    if(row != -1){
-                        String id = table.getModel().getValueAt(row, 0).toString();
-                        Database database = new Database();
-                        database.delete(id);
-                        ((DefaultTableModel)table.getModel()).removeRow(row);
-                        database.connection.close();
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Non hai selezionato nulla!");
+                int input = JOptionPane.showConfirmDialog(null, "Vuoi davvero eliminare il libro selezionato?", "Conferma", JOptionPane.YES_NO_OPTION);
+                if (input == 0){
+                    try{
+                        int row = table.getSelectedRow();
+                        if(row != -1){
+                            String id = table.getModel().getValueAt(row, 0).toString();
+                            Database database = new Database();
+                            database.delete(id);
+                            ((DefaultTableModel)table.getModel()).removeRow(row);
+                            database.connection.close();
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Non hai selezionato nulla!");
+                        }
+                    }catch(Exception ex){
+                        JOptionPane.showMessageDialog(null, ex.getMessage());
                     }
-                }catch(Exception ex){
-                    JOptionPane.showMessageDialog(null, ex.getMessage());
                 }
             }
         }
