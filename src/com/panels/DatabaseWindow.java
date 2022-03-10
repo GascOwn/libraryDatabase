@@ -57,16 +57,15 @@ public class DatabaseWindow extends JFrame implements ActionListener {
                 new JMenuItem("Aggiungi"),
                 new JMenuItem("Modifica"),
                 new JMenuItem("Elimina"),
+                new JMenuItem("Chiudi")
         };
 
         for(int i = 0; i < commands.length; i++){
             buttons[i].addActionListener(this);
             buttons[i].setActionCommand(commands[i]);
-            if(i < 3){
-                menu.add(menuItems[i]);
-                menuItems[i].addActionListener(this);
-                menuItems[i].setActionCommand(commands[i]);
-            }
+            menu.add(menuItems[i]);
+            menuItems[i].addActionListener(this);
+            menuItems[i].setActionCommand(commands[i]);
         }
 
         table.setComponentPopupMenu(menu);
@@ -86,10 +85,12 @@ public class DatabaseWindow extends JFrame implements ActionListener {
 
     public void populateTable() throws SQLException {
         Database database = new Database();
+
         for(Book book : database.selectBook("SELECT * FROM libri")){
             Object[] object = new Object[]{book.getId(), book.getAutore(), book.getTitolo(), book.getNumeroPagine(), book.getGenere()};
             model.addRow(object);
         }
+
         database.connection.close();
     }
 

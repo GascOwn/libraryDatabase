@@ -1,6 +1,6 @@
 package com.database;
 
-import com.panels.MainWindow;
+import com.panels.LoginWindow;
 
 import javax.swing.*;
 import java.sql.*;
@@ -19,13 +19,13 @@ public class Database {
     }
 
     //Ora come ora non serve, è solo per un futuro se si volessero implementare connessioni ad altri database
-    public Database(String connectionString) {
+    /* public Database(String connectionString) {
         try{
             connection = DriverManager.getConnection(connectionString);
         } catch(SQLException sqlEx) {
             JOptionPane.showMessageDialog(null, sqlEx.getMessage());
         }
-    }
+    } */
 
     public void insert(String autore, String titolo, int numeroPagine, String genere) {
         try {
@@ -102,19 +102,60 @@ public class Database {
 
     }
 
-    public static void getStatistics() throws SQLException {
+    public static int count(String query) throws SQLException {
         Database database = new Database();
-        int[] libri = new int[2];
-        String[] query = new String[]{"SELECT COUNT(id) FROM libri", "SELECT COUNT(id) FROM libri WHERE numero_pagine > 100" };
-        for(int i = 0; i < libri.length; i++){
-            PreparedStatement statement = database.connection.prepareStatement(query[i]);
-            ResultSet results = statement.executeQuery();
-            results.next();
-            libri[i] = results.getInt(1);
+        PreparedStatement statement = database.connection.prepareStatement(query);
+        ResultSet results = statement.executeQuery();
+        results.next();
+        return results.getInt(1);
+    }
+
+    public static int[] getStatistics(String[] queries) throws SQLException {
+
+        int[] statistics = new int[queries.length];
+        for(int i = 0; i < queries.length; i++){
+            statistics[i] = count(queries[i]);
+        }
+        return statistics;
+    }
+
+    public static void initialise() throws SQLException {
+        Database database = new Database();
+        ResultSet results =  database.connection.getMetaData().getTables(null, null, "utenti", null);
+        if(!results.next()){
+            String[] queries = new String[]{"CREATE TABLE utenti( " +
+                    "id INT NOT NULL AUTO_INCREMENT," +
+                    "nominativo VARCHAR(30) NOT NULL," +
+                    "username VARCHAR(30) NOT NULL," +
+                    "password VARCHAR(30) NOT NULL," +
+                    "PRIMARY KEY(id)" +
+                    ")",
+                    "INSERT INTO utenti VALUES(null, 'admin', 'admin', 'admin')"
+                    };
+            for(String query : queries){
+                PreparedStatement statement = database.connection.prepareStatement(query);
+                statement.executeUpdate();
+                statement.close();
+            }
+            JOptionPane.showMessageDialog(null, "tabella utenti creata, accedere con username: admin e password: admin");
+        }
+        results =  database.connection.getMetaData().getTables(null, null, "libri", null);
+        if(!results.next()){
+            PreparedStatement statement = database.connection.prepareStatement(
+                    "CREATE TABLE libri( " +
+                            "id INT NOT NULL AUTO_INCREMENT," +
+                            "autore VARCHAR(30) NOT NULL," +
+                            "titolo VARCHAR(50) NOT NULL," +
+                            "numero_pagine INT," +
+                            "genere VARCHAR(30)," +
+                            "PRIMARY KEY(id)" +
+                            ")"
+            );
+            statement.executeUpdate();
             statement.close();
         }
-        JOptionPane.showMessageDialog(null,
-                "Numero di libri totali: " + libri[0] + "\nNumero di libri con più di cento pagine: " + libri[1]);
-        new MainWindow().setVisible(true);
+        database.connection.close();
+        new LoginWindow().setVisible(true);
+
     }
 }

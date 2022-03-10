@@ -21,12 +21,13 @@ public class MainWindow extends JFrame implements ActionListener {
 
         setLayout(new FlowLayout());
 
-        buttons[0].addActionListener(this);
-        buttons[0].setActionCommand("Open");
-        buttons[1].addActionListener(this);
-
         add(combo);
-        for(JButton button : buttons) add(button);
+
+        for(JButton button : buttons) {
+            button.addActionListener(this);
+            add(button);
+        }
+        buttons[0].setActionCommand("Open");
 
         pack();
     }
@@ -40,7 +41,17 @@ public class MainWindow extends JFrame implements ActionListener {
                 switch(combo.getSelectedIndex()){
                     case 0 -> new DatabaseWindow().setVisible(true);
                     case 1 -> new InsertWindow().setVisible(true);
-                    case 2 -> Database.getStatistics();
+                    case 2 -> {
+                        String[] queries = new String[]{
+                                "SELECT COUNT(id) FROM libri",
+                                "SELECT COUNT(id) FROM libri WHERE numero_pagine > 100"};
+                        int[] statistics = Database.getStatistics(queries);
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Numero di libri: " + statistics[0] +
+                                        "\nCon più di cento pagine :" + statistics[1]);
+                        setVisible(true);
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
